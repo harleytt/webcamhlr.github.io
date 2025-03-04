@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>camera project hlr</title>
+    <style>
+        /* Import Google Font */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        /* Tampilan Fullscreen */
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            color: #fff;
+            text-align: center;
+            margin: 0;
+            background: url('https://source.unsplash.com/1920x1080/?technology,abstract') no-repeat center center/cover;
+        }
+
+        /* Kontainer utama */
+        .container {
+            background: rgba(89, 0, 255, 0.7);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            width: 90%;
+            max-width: 900px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .video-wrapper, .photo-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Video lebih besar */
+        video {
+            width: 100%;
+            max-width: 600px;
+            border-radius: 10px;
+            border: 3px solid #1abc9c;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            transform: scaleX(-1); /* Perbaikan mirror kamera */
+        }
+
+        /* Tombol lebih besar */
+        button {
+            background: linear-gradient(45deg, #1abc9c, #16a085);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: 0.3s;
+            margin-top: 20px;
+            box-shadow: 0px 4px 10px rgba(255, 0, 0, 0.3);
+            animation: glow 1.5s infinite alternate;
+        }
+
+        /* Efek glowing */
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px #1abc9c;
+            }
+            to {
+                box-shadow: 0 0 20px #16a085;
+            }
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #16a085, #1abc9c);
+            transform: scale(1.08);
+        }
+
+        /* Hasil foto */
+        canvas, img {
+            width: 100%;
+            max-width: 600px;
+            border-radius: 10px;
+            display: none;
+            box-shadow: 0px 4px 15px rgba(245, 0, 0, 0.4);
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📷 web kamera by hlr</h1>
+        <div class="video-wrapper">
+            <video id="video" autoplay></video>
+        </div>
+        <button id="capture">📸 cekrek</button>
+        <div class="photo-wrapper">
+            <canvas id="canvas"></canvas>
+            <img id="photo" alt="Hasil Foto">
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const captureButton = document.getElementById('capture');
+        const canvas = document.getElementById('canvas');
+        const photo = document.getElementById('photo');
+        const context = canvas.getContext('2d');
+
+        // Akses kamera
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(error => {
+                console.error("Kamera tidak dapat diakses", error);
+            });
+
+        // Ambil foto dan tampilkan dengan efek animasi
+        captureButton.addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            // Membalik gambar agar tidak terbalik
+            context.save();
+            context.translate(canvas.width, 0);
+            context.scale(-1, 1);
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            context.restore();
+
+            // Convert ke gambar
+            const imageData = canvas.toDataURL('image/png');
+            photo.src = imageData;
+
+            // Animasi fade-in saat foto muncul
+            photo.style.display = "block";
+            setTimeout(() => {
+                photo.style.opacity = "1";
+            }, 100);
+        });
+    </script>
+</body>
+</html>
